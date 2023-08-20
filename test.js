@@ -1,55 +1,55 @@
-const input = document.querySelector(".input");
-const btn = document.querySelector(".btn");
-const underText = document.querySelector(".underText");
-const tries = document.querySelector(".tries");
-const inputBox = document.querySelector(".inputBox");
 const content = document.querySelector(".content");
 
-let secretNum = Math.ceil(Math.random() * 100);
-console.log(secretNum);
-let triesNum = 1;
 let gameNum = 0;
 
-function guessNum() {
-  let value = input.value;
-  if (value < secretNum) {
-    underText.textContent = "Больше";
-    triesNum++;
-  } else if (value > secretNum) {
-    underText.textContent = "Меньше";
-    triesNum++;
-  } else if (value == secretNum) {
-    inputBox.innerHTML = `<p class="subtitle">Угадал за ${triesNum} ходов</p>
-                <button class="btnRepeat">Начать сначала</button>`;
-    underText.classList.add("hide");
-  }
-}
+let triesNum = 1;
 
-function guessRepeat() {
-  // Восстановление исходных условий для новой игры
-  secretNum = Math.ceil(Math.random() * 100);
+// для отрисовки
+function render(gameNum) {
+  let secretNum = Math.ceil(Math.random() * 100);
   console.log(secretNum);
-  triesNum = 1;
-  content.innerHTML = `
-                <h1 class="title">Угадай число</h1>
-                <p class="subtitle">Я загадал число от 1 до 100, ты должен угадать это число</p>
-                <div class="inputBox">
-                    <input type="text" class="input">
-                    <button class="btn">Угадать</button>
-                </div>
-                <p class="underText">—</p>
-                <p class="tries">Сыграно игр: ${gameNum}</p>`;
 
-  // Добавляем обработчик для кнопки btn снова
-  btn.addEventListener("click", guessNum);
+  content.innerHTML = ` <h1 class="title">Угадай число</h1>
+            <p class="subtitle">Я загадал число от 1 до 100, ты должен угадать это число</p>
+            <div class="inputBox">
+                <input type="text" class="input">
+                <button class="btn">Угадать</button>
+                <p class="underText">—</p>
+                <p class="tries">Сыграно игр: ${
+                  gameNum == undefined ? 0 : gameNum
+                }</p>
+            </div>
+    `;
+  let inputBox = content.querySelector(".inputBox");
+  let input = content.querySelector(".input");
+  let underText = content.querySelector(".underText");
+
+  let btn = content.querySelector(".btn");
+  btn.addEventListener("click", () =>
+    guessNum(inputBox, input, underText, secretNum)
+  );
 }
 
-btn.addEventListener("click", guessNum);
+function guessNum(inputBox, input, underText, secretNum) {
+  let value = input.value;
 
-content.addEventListener("click", function (event) {
-  if (event.target.classList.contains("btnRepeat")) {
+  if (value < secretNum) {
+    triesNum++;
+    underText.textContent = "Больше";
+  } else if (value > secretNum) {
+    triesNum++;
+    underText.textContent = "Меньше";
+  } else if (value == secretNum) {
     gameNum++;
-    tries.innerHTML = `Сыграно игр: ${gameNum}`;
-    guessRepeat();
+    inputBox.innerHTML = `<p class="subtitle">Угадал за ${triesNum} ходов</p>
+   <button class="btnRepeat">Начать сначала</button>
+   <p class="tries">Сыграно игр: ${gameNum}</p>`;
+    let btnRepeat = inputBox.querySelector(".btnRepeat");
+    btnRepeat.addEventListener("click", () => {
+      triesNum = 1;
+      render(gameNum);
+    });
   }
-});
+}
+
+render();
